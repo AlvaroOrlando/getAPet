@@ -156,6 +156,10 @@ module.exports = class UserController {
         }
 
         res.status(200).json({user});
+    }
 
+    static async updateUser(req,res) {
+        res.status(200).json('user updated');
+        return
     }
 }
