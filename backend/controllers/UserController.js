@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const createUserToken = require('../helpers/create-user-token');
 const getToken = require('../helpers/get-token');
 const getUserByToken = require('../helpers/get-user-by-token');
+const { findOneAndUpdate } = require('../models/User');
 
 module.exports = class UserController {
     static async register(req, res) {
@@ -215,22 +216,34 @@ module.exports = class UserController {
         }
         user.phone = phone;
 
-        if(!password){
-            res.status(422).json({
-                message: 'A senha é obrigatório'
-            })
-            return
-        }
-        if(!confirmPassword){
-            res.status(422).json({
-                message: 'A confirmação de senha é obrigatório'
-            })
-            return
-        }
-
         if(password !== confirmPassword){
             res.status(422).json({
                 message: 'A senha e a confirmação de senha não conferem'
+            })
+            return
+        } else if(password === confirmPassword && password !== null){
+
+            //creating password
+            const salt = await bcrypt.genSalt(12);
+            const passwordHash = await bcrypt.hash(password, salt);
+
+            user.password = passwordHash;
+        }
+
+        try {
+            //return updated user data
+             await User.findOneAndUpdate(
+                {_id: user.id},
+                {$set: user},
+                {new: true}
+            )
+
+            res.status(200).json({
+                message: 'Usuário atualizado com sucesso!'
+            })
+        } catch (error) {
+            res.status(500).json({
+                message:error
             })
             return
         }
