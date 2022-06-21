@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 //helpers
 const createUserToken = require('../helpers/create-user-token');
 const getToken = require('../helpers/get-token');
+const getUserByToken = require('../helpers/get-user-by-token');
 
 module.exports = class UserController {
     static async register(req, res) {
@@ -18,24 +19,29 @@ module.exports = class UserController {
             })
             return
         }
+
         if(!email){
             res.status(422).json({
                 message: 'O e-mail é obrigatório'
             })
             return
         }
+
         if(!phone){
             res.status(422).json({
                 message: 'O telefone é obrigatório'
             })
             return
         }
+
+
         if(!password){
             res.status(422).json({
                 message: 'A senha é obrigatório'
             })
             return
         }
+
         if(!confirmPassword){
             res.status(422).json({
                 message: 'A confirmação de senha é obrigatório'
@@ -105,7 +111,6 @@ module.exports = class UserController {
         }
           //check if user exists
           const user = await User.findOne({email});
-
           if(!user){
               res.status(422).json({
                   message: 'Usuário não encontrado!'
@@ -124,6 +129,7 @@ module.exports = class UserController {
 
         await createUserToken(user, req, res);
     }
+
     static async checkUser(req,res) {
 
         let currentUser;
@@ -138,8 +144,8 @@ module.exports = class UserController {
             currentUser = await User.findById(decodedToken.id);
             currentUser.password = undefined;
 
-        }else {
-            currentUser= null
+        } else {
+            currentUser = null
         }
         res.status(200).send(currentUser)
     }
@@ -159,7 +165,74 @@ module.exports = class UserController {
     }
 
     static async updateUser(req,res) {
-        res.status(200).json('user updated');
-        return
+        
+        const { id } = req.params;
+
+        //chech if user exists
+        // const user = await User.findById(id);
+
+        const token = getToken(req);
+        const user = await getUserByToken(token);
+
+        const { name, email, phone, password, confirmPassword } = req.body;
+
+        let image = ''
+
+        //validations
+        if(!name){
+            res.status(422).json({
+                message: 'O nome é obrigatório'
+            })
+            return
+        }
+
+        user.name = name;
+        
+        if(!email){
+            res.status(422).json({
+                message: 'O e-mail é obrigatório'
+            })
+            return
+        }
+
+        //check if email has already been used
+        const userExists = await User.findOne({email});
+
+        if(user.email !== email && userExists){
+            res.status(422).json({
+                message: 'E-mail já existe'
+            })
+        }
+
+        user.email = email;
+
+
+        if(!phone){
+            res.status(422).json({
+                message: 'O telefone é obrigatório'
+            })
+            return
+        }
+        user.phone = phone;
+
+        if(!password){
+            res.status(422).json({
+                message: 'A senha é obrigatório'
+            })
+            return
+        }
+        if(!confirmPassword){
+            res.status(422).json({
+                message: 'A confirmação de senha é obrigatório'
+            })
+            return
+        }
+
+        if(password !== confirmPassword){
+            res.status(422).json({
+                message: 'A senha e a confirmação de senha não conferem'
+            })
+            return
+        }
     }
 }
