@@ -76,9 +76,31 @@ module.exports = class PetController {
             } catch (error) {
                 res.status(500).json({ message: error })
             }
+    }
 
+    static async getAll(req,res){
+        const pets = await Pet.find().sort('-createdAt')
+        res.status(200).json({ pets })
+    }
 
+    static async getAllUserPets(req,res){
 
-       res.json({message: "Tudo certo!"})
+        //get user by token
+        const token = getToken(req);
+        const user =  await getUserByToken(token);
+
+        const pets = await Pet.find({'user._id': user._id}).sort('-createdAt');
+        res.status(200).json({ pets })
+    }
+
+    static async getAllUsersAdoptions(req,res) {
+
+        //get user by token
+        const token = getToken(req);
+        const user =  await getUserByToken(token);
+
+        const pets = await Pet.find({'adopter._id': user._id}).sort('-createdAt')
+
+        res.status(200).json({ pets })
     }
 }
