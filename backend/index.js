@@ -17,10 +17,10 @@ app.use(express.static('public'));
 
 //Routes
 const userRoutes = require('./routes/UserRoutes');
+const petRoutes = require('./routes/PetRoutes');
 
 app.use('/users', userRoutes);
-
-
+app.use('/pets', petRoutes);
 
 
 
