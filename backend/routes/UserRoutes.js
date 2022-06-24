@@ -5,6 +5,7 @@ const UserController = require('../controllers/UserController');
 
 //middlewares
 const verifyToken = require('../helpers/verify-token');
+const { imageUpload } = require('../helpers/image-upload')
 
 //registro de usuário
 router.post('/register', UserController.register);
@@ -19,7 +20,7 @@ router.get('/checkuser', UserController.checkUser);
 router.get('/:id', UserController.getUserById);
 
 //atualizando usuário
-router.patch('/edit/:id', verifyToken, UserController.updateUser);
+router.patch('/edit/:id', verifyToken, imageUpload.single('image'), UserController.updateUser);
 
 
 module.exports = router;
