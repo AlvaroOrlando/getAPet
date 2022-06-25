@@ -21,4 +21,7 @@ router.get('/myadoptions',verifyToken, PetController.getAllUsersAdoptions);
 //get pet by id
 router.get('/:id', PetController.getPetById);
 
+//remove pet by id
+router.delete('/:id', verifyToken, PetController.removePetById);
+
 module.exports = router;
