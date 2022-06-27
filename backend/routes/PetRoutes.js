@@ -27,6 +27,10 @@ router.delete('/:id', verifyToken, PetController.removePetById);
 //update pet by id
 router.patch('/:id', verifyToken, imageUpload.array('images'),PetController.updatePet );
 
+//schedule pet visit
 router.patch('/schedule/:id', verifyToken, PetController.schedule);
+
+//conclude pet adoption
+router.patch('/conclude/:id',verifyToken, PetController.concludeAdoption)
 
 module.exports = router;
